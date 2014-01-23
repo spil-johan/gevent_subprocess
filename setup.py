@@ -25,16 +25,16 @@
 from setuptools import setup
 
 setup(
-    name         = 'gevent_subprocess',
-    version      = '0.1.1',
-    description  = 'gevent adapter for the standard python subprocess',
-    author       = 'François-Xavier Bourlet <bombela@gmail.com>',
-    author_email = 'bombela@gmail.com',
-    url          = 'https://github.com/bombela/gevent_subprocess',
-    license      = 'MIT',
-    packages     = ['gevent_subprocess'],
-    zip_safe     = False,
+    name='gevent_subprocess',
+    version='0.1.3',
+    description='gevent adapter for the standard python subprocess',
+    author='François-Xavier Bourlet <bombela@gmail.com>',
+    author_email='bombela@gmail.com',
+    url='https://github.com/bombela/gevent_subprocess',
+    license='MIT',
+    packages=['gevent_subprocess'],
+    zip_safe=False,
     install_requires=[
         'gevent',
-        ]
-    )
+    ]
+)

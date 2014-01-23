@@ -122,8 +122,8 @@ class Pipe(object):
                 line = self._readline_buffer[0:size]
                 self._readline_buffer = self._readline_buffer[size:]
         else:
-            line = self._readline_buffer[0:line_end+1]
-            self._readline_buffer = self._readline_buffer[line_end+1:]
+            line = self._readline_buffer[0:line_end + 1]
+            self._readline_buffer = self._readline_buffer[line_end + 1:]
         return line
 
     def readlines(self, sizehint=-1):  # allowed to ignore sizehint
@@ -140,6 +140,7 @@ class Pipe(object):
 
 
 class _PopenWithAsyncPipe(_subprocess.Popen):
+
     def __init__(self, args, bufsize=0, executable=None,
                  stdin=None, stdout=None, stderr=None,
                  preexec_fn=None, close_fds=False, shell=False,
@@ -191,16 +192,26 @@ class _PopenWithAsyncPipe(_subprocess.Popen):
         # are None when not using PIPEs. The child objects are None
         # when not redirecting.
 
-        (p2cread, p2cwrite,
-         c2pread, c2pwrite,
-         errread, errwrite) = self._get_handles(stdin, stdout, stderr)
+        t = self._get_handles(stdin, PIPE, PIPE)
+        nreturned = len(t)
+        if nreturned == 2:
+            p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite = t[0]
+            to_close = t[1]
+            self._execute_child(args, executable, preexec_fn, close_fds,
+                                cwd, env, universal_newlines,
+                                startupinfo, creationflags, shell, to_close,
+                                p2cread, p2cwrite,
+                                c2pread, c2pwrite,
+                                errread, errwrite)
 
-        self._execute_child(args, executable, preexec_fn, close_fds,
-                            cwd, env, universal_newlines,
-                            startupinfo, creationflags, shell,
-                            p2cread, p2cwrite,
-                            c2pread, c2pwrite,
-                            errread, errwrite)
+        else:
+            p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite = t
+            self._execute_child(args, executable, preexec_fn, close_fds,
+                                cwd, env, universal_newlines,
+                                startupinfo, creationflags, shell,
+                                p2cread, p2cwrite,
+                                c2pread, c2pwrite,
+                                errread, errwrite)
 
         if _subprocess.mswindows:
             if p2cwrite is not None:
@@ -227,14 +238,14 @@ class _PopenWithAsyncPipe(_subprocess.Popen):
 class Popen(object):
 
         def __init__(self, args, bufsize=0, executable=None, stdin=None,
-            stdout=None, stderr=None, preexec_fn=None,
-            close_fds=True,  # Like in Python 3.2, close_fds is now True by default.
-            shell=False, cwd=None, env=None, universal_newlines=False,
-            startupinfo=None, creationflags=0):
+                     stdout=None, stderr=None, preexec_fn=None,
+                     close_fds=True,  # Like in Python 3.2, close_fds is now True by default.
+                     shell=False, cwd=None, env=None, universal_newlines=False,
+                     startupinfo=None, creationflags=0):
 
             self._process = _PopenWithAsyncPipe(args, bufsize, executable, stdin,
-                    stdout, stderr, preexec_fn, close_fds, shell, cwd, env,
-                    universal_newlines, startupinfo, creationflags)
+                                                stdout, stderr, preexec_fn, close_fds, shell, cwd, env,
+                                                universal_newlines, startupinfo, creationflags)
 
         def _set_return_code(self, value):
             self._process.returncode = value
